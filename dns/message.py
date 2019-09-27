@@ -35,17 +35,6 @@ def encode_question(name, qtype):
         FormatError on invalid domain name for given query type.
     """
     name_fields = name.rstrip("/").split(".")
-    if qtype == QUERY_TYPE_A:
-        if "www" != name_fields[0]:
-            raise FormatError(
-                "Invalid argument domain name {} for query type {}".format(
-                    name, qtype))
-    elif qtype == QUERY_TYPE_NS:
-        if not name_fields[0].startswith("ns"):
-            raise FormatError(
-                "Invalid argument domain name {} for query type {}".format(
-                    name, qtype))
-
     check_name(name_fields)
     fmt = ','.join([
         "uint:8={}, bytes:{}".format(len(field), len(field))
@@ -128,10 +117,10 @@ def seek_response(response_start, full_msg):
         pref = rdata[:16].uint
         name, _ = decode_name(full_msg, rdata[16:])
         answer = (pref, name)
-    elif rtype == _QUERY_TYPE_CNAME:
-        name, _ = decode_name(full_msg, rdata)
+    elif rtype == QUERY_TYPE_CNAME:
+        answer, _ = decode_name(full_msg, rdata)
     elif rtype == QUERY_TYPE_NS:
-        name, _ = decode_name(full_msg, data)
+        answer, _ = decode_name(full_msg, rdata)
 
     resp = rdata[rdlen * 8:]
 
@@ -146,6 +135,16 @@ class Query(object):
     QUESTION_FMT = '>sHH'
 
     def __init__(self, id=0, opcode=0, aa=0, rd=1, names=[]):
+        """
+        Constructs a query
+        Args:
+            id: id for the query(default: 0).
+            opcode: opcode for the query(default: 0).
+            rd: Set to 1 if recursion is desired (default: 1).
+            names(list): List of tuples (name(String), query_type(int)).
+        Raises:
+            FormatError: On invalid names.
+        """
         self.id = id
         self.opcode = opcode
         self.aa = aa
@@ -251,7 +250,7 @@ class Response(object):
                 msg = "MX\t{:s}\t{:d}".format(alias, pref)
             elif rtype == QUERY_TYPE_NS:
                 msg = "NS\t{:s}".format(answer)
-            elif rtype == _QUERY_TYPE_CNAME:
+            elif rtype == QUERY_TYPE_CNAME:
                 msg = "CNAME\t{:s}".format(answer)
             auth_type = "auth" if self.aa else "nonauth"
             msg = "{:s}\t{:d}\t{:s}".format(msg, ttl, auth_type)

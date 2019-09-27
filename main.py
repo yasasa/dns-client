@@ -46,12 +46,12 @@ if __name__ == "__main__":
         query = Query(names=[(args.name, query_type)])
         try:
             response, attempts, time = resolver.query(query, server, timeout=args.timeout, port=args.port, max_retries=args.max_retries)
-            print("Response received after {} seconds ({} retries)".format(time, attempts))
+            print("Response received after {:.2f} seconds ({} retries)".format(time, attempts))
             print(response)
         except dns.InvalidNameError:
             print("NOTFOUND")
-        except socket.timeout:
-            print("ERROR\tRequest Timed Out")
+        except socket.timeout as e:
+            print("ERROR\tRequest Timed Out:",e)
         except dns.FormatError as e:
             print("ERROR\tIncorrect Input Format:", e)
         except dns.ServerRefusedError:

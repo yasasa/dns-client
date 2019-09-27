@@ -89,7 +89,7 @@ class Resolver(object):
                 retries += 1
 
         if max_retries == retries:
-            raise socket.timeout
+            raise socket.timeout("{} retries, {:.2f} seconds".format(retries, time.time() - start))
 
 
         return resp, retries, end - start
