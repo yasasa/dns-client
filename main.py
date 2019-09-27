@@ -65,4 +65,6 @@ if __name__ == "__main__":
         except dns.ResponsePacketError as e:
             print("ERROR\tUnexpected Response:", e)
         except dns.ServerError:
-            print("ERRPR\tServer Error")
+            print("ERROR\tServer Error")
+        except socket.gaierror:
+            print("ERROR\tInvalid server or port")
