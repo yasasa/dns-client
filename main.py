@@ -25,11 +25,8 @@ if __name__ == "__main__":
     )
     parser.add_argument("--port", type=int, default=53, help="UDP port number")
     parser.add_argument(
-        "@server",
-        type=str,
-        help="IPv4 address for DNS server.")
-    parser.add_argument(
-        "name", type=str, help="Domain name to query for.")
+        "@server", type=str, help="IPv4 address for DNS server.")
+    parser.add_argument("name", type=str, help="Domain name to query for.")
 
     group = parser.add_mutually_exclusive_group()
     group.add_argument("-mx", action="store_true")
@@ -42,16 +39,23 @@ if __name__ == "__main__":
     with Resolver() as resolver:
         print("DNS client sending request for {}".format(args.name))
         print("Server: {}".format(server))
-        print("Request Type: {}".format("NS" if args.ns else "MX" if args.mx else "A"))
+        print("Request Type: {}".format("NS" if args.ns else "MX"
+                                        if args.mx else "A"))
         query = Query(names=[(args.name, query_type)])
         try:
-            response, attempts, time = resolver.query(query, server, timeout=args.timeout, port=args.port, max_retries=args.max_retries)
-            print("Response received after {:.2f} seconds ({} retries)".format(time, attempts))
+            response, attempts, time = resolver.query(
+                query,
+                server,
+                timeout=args.timeout,
+                port=args.port,
+                max_retries=args.max_retries)
+            print("Response received after {:.2f} seconds ({} retries)".format(
+                time, attempts))
             print(response)
         except dns.InvalidNameError:
             print("NOTFOUND")
         except socket.timeout as e:
-            print("ERROR\tRequest Timed Out:",e)
+            print("ERROR\tRequest Timed Out:", e)
         except dns.FormatError as e:
             print("ERROR\tIncorrect Input Format:", e)
         except dns.ServerRefusedError:
@@ -62,5 +66,3 @@ if __name__ == "__main__":
             print("ERROR\tUnexpected Response:", e)
         except dns.ServerError:
             print("ERRPR\tServer Error")
-
-        

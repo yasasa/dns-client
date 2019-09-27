@@ -10,6 +10,7 @@ QUERY_TYPE_MX = 15
 QUERY_TYPE_NS = 2
 
 QUERY_TYPE_CNAME = 5
+QUERY_TYPE_AAAA = 28
 
 
 def check_name(name_fields):
@@ -121,6 +122,14 @@ def seek_response(response_start, full_msg):
         answer, _ = decode_name(full_msg, rdata)
     elif rtype == QUERY_TYPE_NS:
         answer, _ = decode_name(full_msg, rdata)
+    elif rtype == QUERY_TYPE_AAAA:
+        ip = rdata[:rdlen * 8]
+        answer = "{:04X}:{:04X}:{:04X}:{:04X}:{:04X}:{:04X}:{:04X}:{:04X}".format(
+            ip[:16].uint, ip[16:32].uint, ip[32:48].uint, ip[48:64].uint,
+            ip[64:80].uint, ip[80:96].uint, ip[96:112].uint, ip[112:128].uint)
+    else:
+        raise ResponsePacketError(
+            "Found RType {} in response packet.".format(rtype))
 
     resp = rdata[rdlen * 8:]
 
@@ -252,6 +261,9 @@ class Response(object):
                 msg = "NS\t{:s}".format(answer)
             elif rtype == QUERY_TYPE_CNAME:
                 msg = "CNAME\t{:s}".format(answer)
+            elif rtype == QUERY_TYPE_AAAA:
+                msg = "IP\t{:s}".format(answer)
+
             auth_type = "auth" if self.aa else "nonauth"
             msg = "{:s}\t{:d}\t{:s}".format(msg, ttl, auth_type)
             msgs.append(msg)
