@@ -49,7 +49,7 @@ if __name__ == "__main__":
                 timeout=args.timeout,
                 port=args.port,
                 max_retries=args.max_retries)
-            print("Response received after {:.2f} seconds ({} retries)".format(
+            print("Response received after {:.4f} seconds ({} retries)".format(
                 time, attempts))
             print(response)
         except dns.InvalidNameError:
