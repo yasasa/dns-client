@@ -1,4 +1,4 @@
-# DNS client library
+# DNS Resolver
 
 ## Dependencies
 This tool uses Python 3, tested on Python 3.7.4.
@@ -11,5 +11,6 @@ or,
 `pip install .`
 
 ## Usage:
-For usage instructions please use 
+For usage instructions use:
+
 `python main.py -h`
