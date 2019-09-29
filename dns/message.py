@@ -71,7 +71,7 @@ def decode_name(full_msg, name_start):
     Decode a possible compressed name from a DNS packet.
     Args:
         full_msg(bytes): Full packet that was received.
-        name_start(byte/int): Either a pointer starting from 
+        name_start(byte/int): Either a pointer starting from
         the name or an integer to the offset from the begining of full_msg
         where the name begins.
     Returns:
@@ -197,7 +197,7 @@ class Response(object):
             query(Query): Query for this response, used to speed up decoding.
         Raises:
             FormatError: If the query was configured in an invalid manner.
-            ServerError: If the server is unable to respond to the query, 
+            ServerError: If the server is unable to respond to the query,
                          usually fixed by setting rd=1 in the query.
             InvalidNameError: Invalid domain name, could not be found.
             ServerRefusedError: The server has refused the dns request.
@@ -237,7 +237,13 @@ class Response(object):
         self.rc = rc
         self.ac = ac
 
-        resp = msg[query.payload.len:]
+        question = msg[96:]
+        for _ in range(qc):
+            _, question = decode_name(msg, question)
+            question = question[32:] # Move past QTYPE and QCLASS
+
+        resp = question
+
         name = True
         names = []
         for _ in range(rc):
